@@ -15,21 +15,46 @@ export default function AdminLogin() {
     setLoading(true);
     setError("");
 
-    const { data, error: dbError } = await supabase
-      .from("user")
-      .select("id, login")
-      .eq("login", login)
-      .eq("password", password)
-      .maybeSingle();
+    const loginValue = login.trim();
+    const passwordValue = password.trim();
 
-    if (dbError || !data) {
-      setError("Login ou senha incorretos.");
-      setLoading(false);
-    } else {
-      sessionStorage.setItem("admin_authenticated", "true");
-      sessionStorage.setItem("admin_user", data.login);
-      navigate("/admin/dashboard");
+    const checkTable = async (tableName: string) => {
+      return await supabase
+        .from(tableName)
+        .select("id, login, client_id")
+        .eq("login", loginValue)
+        .eq("password", passwordValue)
+        .maybeSingle();
+    };
+
+    let result = await checkTable("user");
+
+    if (!result.data && !result.error) {
+      result = await checkTable("users");
     }
+
+    if (result.error) {
+      console.error("Supabase admin login error:", result.error, "result:", result);
+      setError("Erro de conexão com o banco. Verifique o console e as regras do Supabase.");
+      setLoading(false);
+      return;
+    }
+
+    if (!result.data) {
+      console.warn("Login falhou: entrada não encontrada", { login: loginValue });
+      setError("Login ou senha incorretos. Verifique usuário/senha no Supabase.");
+      setLoading(false);
+      return;
+    }
+
+    sessionStorage.setItem("admin_authenticated", "true");
+    sessionStorage.setItem("admin_user", result.data.login);
+    if (result.data.client_id) {
+      sessionStorage.setItem("client_id", result.data.client_id.toString());
+    } else {
+      sessionStorage.removeItem("client_id");
+    }
+    navigate("/admin/dashboard");
   };
 
   return (
