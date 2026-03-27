@@ -30,7 +30,7 @@ export function AboutSection({ onCtaClick }: AboutSectionProps) {
           Advogado especialista em Direito do Trabalho, com mais de 7 anos de atuação dedicada à defesa dos direitos dos trabalhadores. Sua experiência abrange desde negociações extrajudiciais até processos complexos na Justiça do Trabalho.
         </p>
         <p className="mb-8 font-body text-body-mobile text-foreground/80 lg:text-body-desktop">
-          Com atendimento próximo e humanizado, o Dr. Maurílio busca entender a fundo cada caso para oferecer a melhor estratégia jurídica, sempre com ética, transparência e compromisso com os resultados.
+          Com atendimento próximo e humanizado, o Dr. Maurílio busca entender a fundo cada caso para oferecer a melhor estratégia jurídica, sempre com ética, transparência e compromisso com os resultados
         </p>
         <Button variant="cta" size="lg" onClick={onCtaClick} className="w-fit px-10 py-6">
           Agende uma consulta
