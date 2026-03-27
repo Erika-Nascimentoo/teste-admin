@@ -23,15 +23,12 @@ export default function AdminDashboard() {
   const [filterUtm, setFilterUtm] = useState("");
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/admin");
-        return;
-      }
-      fetchLeads();
-    };
-    checkAuth();
+    const isAuth = sessionStorage.getItem("admin_authenticated");
+    if (!isAuth) {
+      navigate("/admin");
+      return;
+    }
+    fetchLeads();
   }, [navigate]);
 
   const fetchLeads = async () => {
@@ -41,8 +38,9 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    sessionStorage.removeItem("admin_authenticated");
+    sessionStorage.removeItem("admin_user");
     navigate("/admin");
   };
 
