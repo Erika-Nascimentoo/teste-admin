@@ -21,7 +21,7 @@ export default function AdminLogin() {
     const checkTable = async (tableName: string) => {
       return await supabase
         .from(tableName)
-        .select("id, login, client_id")
+        .select("id, login, subdomain")
         .eq("login", loginValue)
         .eq("password", passwordValue)
         .maybeSingle();
@@ -34,25 +34,36 @@ export default function AdminLogin() {
     }
 
     if (result.error) {
-      console.error("Supabase admin login error:", result.error, "result:", result);
-      setError("Erro de conexão com o banco. Verifique o console e as regras do Supabase.");
+      console.error(
+        "Supabase admin login error:",
+        result.error,
+        "result:",
+        result,
+      );
+      setError(
+        "Erro de conexão com o banco. Verifique o console e as regras do Supabase.",
+      );
       setLoading(false);
       return;
     }
 
     if (!result.data) {
-      console.warn("Login falhou: entrada não encontrada", { login: loginValue });
-      setError("Login ou senha incorretos. Verifique usuário/senha no Supabase.");
+      console.warn("Login falhou: entrada não encontrada", {
+        login: loginValue,
+      });
+      setError(
+        "Login ou senha incorretos. Verifique usuário/senha no Supabase.",
+      );
       setLoading(false);
       return;
     }
 
     sessionStorage.setItem("admin_authenticated", "true");
     sessionStorage.setItem("admin_user", result.data.login);
-    if (result.data.client_id) {
-      sessionStorage.setItem("client_id", result.data.client_id.toString());
+    if (result.data.subdomain) {
+      sessionStorage.setItem("subdomain", result.data.subdomain); // ← troca client_id por subdomain
     } else {
-      sessionStorage.removeItem("client_id");
+      sessionStorage.removeItem("subdomain");
     }
     navigate("/admin/dashboard");
   };
@@ -60,7 +71,9 @@ export default function AdminLogin() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-dark px-6">
       <div className="w-full max-w-sm rounded-lg bg-background p-8 shadow-xl">
-        <h1 className="mb-6 text-center font-heading text-heading-mobile text-foreground">Painel Admin</h1>
+        <h1 className="mb-6 text-center font-heading text-heading-mobile text-foreground">
+          Painel Admin
+        </h1>
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="text"
@@ -79,7 +92,13 @@ export default function AdminLogin() {
             className="w-full rounded-md border border-input bg-background px-4 py-3 font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" variant="cta" size="lg" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            variant="cta"
+            size="lg"
+            className="w-full"
+            disabled={loading}
+          >
             {loading ? "Entrando..." : "Entrar"}
           </Button>
         </form>
